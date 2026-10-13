@@ -109,7 +109,7 @@ app.post('/api/leads', leadLimiter, async (req, res) => {
       timeZone: 'America/Sao_Paulo',
     });
 
-    const subject = `Novo lead do Google Ads - ${nome}`;
+    const subject = `Novo contato pelo site - ${nome}`;
 
     const fields = [
       ['Origem', origem],
@@ -139,7 +139,7 @@ app.post('/api/leads', leadLimiter, async (req, res) => {
 
     const htmlBody = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
-        <h2 style="color:#0f2747">Novo lead vindo do Google Ads</h2>
+        <h2 style="color:#0f2747">Novo contato pelo site Zordan Advogados</h2>
         ${fields.map(([label, value]) => `<p><strong>${html(label)}:</strong> ${html(value)}</p>`).join('')}
         <hr>
         <p><strong>Mensagem:</strong></p>

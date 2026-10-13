@@ -169,8 +169,8 @@ app.post('/api/leads', leadLimiter, async (req, res) => {
   }
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.use((req, res) => {
+  res.status(404).type('html').send('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Página não encontrada | Zordan Advogados</title></head><body style="font-family:system-ui;max-width:720px;margin:12vh auto;padding:24px;color:#2b2118"><h1>Página não encontrada</h1><p>O endereço solicitado não existe ou foi alterado.</p><a href="/">Voltar ao início</a> · <a href="/artigos/">Ver artigos</a></body></html>');
 });
 
 app.listen(PORT, () => {

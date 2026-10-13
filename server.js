@@ -109,7 +109,7 @@ app.post('/api/leads', leadLimiter, async (req, res) => {
       timeZone: 'America/Sao_Paulo',
     });
 
-    const subject = `Novo lead do Google Ads - ${nome}`;
+    const subject = `Novo contato pelo site - ${nome}`;
 
     const fields = [
       ['Origem', origem],
@@ -139,7 +139,7 @@ app.post('/api/leads', leadLimiter, async (req, res) => {
 
     const htmlBody = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
-        <h2 style="color:#0f2747">Novo lead vindo do Google Ads</h2>
+        <h2 style="color:#0f2747">Novo contato pelo site Zordan Advogados</h2>
         ${fields.map(([label, value]) => `<p><strong>${html(label)}:</strong> ${html(value)}</p>`).join('')}
         <hr>
         <p><strong>Mensagem:</strong></p>
@@ -169,8 +169,8 @@ app.post('/api/leads', leadLimiter, async (req, res) => {
   }
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.use((req, res) => {
+  res.status(404).type('html').send('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Página não encontrada | Zordan Advogados</title></head><body style="font-family:system-ui;max-width:720px;margin:12vh auto;padding:24px;color:#2b2118"><h1>Página não encontrada</h1><p>O endereço solicitado não existe ou foi alterado.</p><a href="/">Voltar ao início</a> · <a href="/artigos/">Ver artigos</a></body></html>');
 });
 
 app.listen(PORT, () => {

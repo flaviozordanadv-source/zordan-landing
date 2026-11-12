@@ -22,6 +22,8 @@
 
   function area() {
     var path = window.location.pathname;
+    var contato = path.match(/^\/contato\/(familia|bancario|civil|trabalhista|consumidor|revisao-financiamento|busca-apreensao)\/?/);
+    if (contato) return contato[1];
     if (path.indexOf('/familia/') === 0) return 'familia';
     if (path.indexOf('/bancario/') === 0) return 'bancario';
     if (path.indexOf('/civil/') === 0) return 'civil';

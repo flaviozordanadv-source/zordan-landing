@@ -123,8 +123,41 @@
 
 <a class="float-wa" href="https://wa.me/5554991356060?text=Ol%C3%A1%2C%20gostaria%20de%20informar%20meu%20caso." target="_blank">WhatsApp</a>
 
+<script src="/form-config.js"></script>
 <script>
 const form=document.getElementById('leadForm'),statusEl=document.getElementById('formStatus'),btn=form.querySelector('button');
-form.addEventListener('submit',async e=>{e.preventDefault();btn.disabled=true;btn.textContent='Enviando...';statusEl.textContent='';const d=new FormData(form),q=new URLSearchParams(location.search);const body={nome:d.get('nome'),cidade:d.get('cidade'),email:d.get('email'),telefone:d.get('telefone'),area:d.get('area'),processo:d.get('processo'),mensagem:d.get('mensagem'),website:d.get('website'),origem:'Site Zordan Advogados',pagina:location.href,gclid:q.get('gclid')||'',utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_term:q.get('utm_term')||''};try{const r=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error((j.errors||[]).join(' ')||j.error||'Não foi possível enviar agora.');form.reset();window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'lead_form_success',form_id:'leadForm',page_path:location.pathname});statusEl.textContent='Mensagem enviada com sucesso.';statusEl.className='ok'}catch(err){statusEl.textContent=err.message;statusEl.className='err'}finally{btn.disabled=false;btn.textContent='Enviar informações'}});
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const d=new FormData(form),q=new URLSearchParams(location.search);
+  if(String(d.get('website')||'').trim()) return;
+  const body={nome:d.get('nome'),cidade:d.get('cidade'),email:d.get('email'),telefone:d.get('telefone'),area:d.get('area'),processo:d.get('processo'),mensagem:d.get('mensagem'),origem:'Site Zordan Advogados',pagina:location.href,gclid:q.get('gclid')||'',utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_term:q.get('utm_term')||''};
+  const endpoint=window.ZORDAN_FORM_ENDPOINT;
+  const isStatic=location.hostname.includes('zordan-advogados-static.onrender.com');
+  if(isStatic&&!endpoint){
+    statusEl.textContent='Envio por formulário temporariamente indisponível. Utilize o WhatsApp para entrar em contato.';
+    statusEl.className='err';
+    return;
+  }
+  btn.disabled=true;btn.textContent='Enviando...';statusEl.textContent='';
+  try{
+    const useProvider=Boolean(endpoint);
+    const r=await fetch(useProvider?endpoint:'/api/leads',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const j=await r.json().catch(()=>({}));
+    const errorText=Array.isArray(j.errors)?j.errors.map(x=>typeof x==='string'?x:x.message||'').filter(Boolean).join(' '):j.error;
+    if(!r.ok||(!useProvider&&!j.ok))throw new Error(errorText||'Não foi possível enviar agora.');
+    form.reset();
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'lead_form_success',form_id:'leadForm',page_path:location.pathname});
+    statusEl.textContent='Mensagem enviada com sucesso.';
+    statusEl.className='ok';
+  }catch(err){
+    statusEl.textContent=err.message||'Não foi possível enviar agora. Utilize o WhatsApp.';
+    statusEl.className='err';
+  }finally{btn.disabled=false;btn.textContent='Enviar informações';}
+});
 </script>
 <script defer src="/ads-events.js"></script></body></html>

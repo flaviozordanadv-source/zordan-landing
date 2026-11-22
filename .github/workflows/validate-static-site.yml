@@ -5,12 +5,13 @@ on:
       - '.github/workflows/validate-static-site.yml'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
+      - uses: actions/checkout@v4
       - name: Verificar paginas e script publicado
         shell: bash
         run: |
@@ -36,4 +37,21 @@ jobs:
           if [[ "$status" != '200' && "$status" != '201' && "$status" != '202' ]]; then
             head -c 600 /tmp/form-response
             exit 1
+          fi
+
+      - name: Registrar resultado para auditoria
+        if: always()
+        shell: bash
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          mkdir -p .github/status
+          printf 'status=%s\nchecked_at=%s\n' "$JOB_STATUS" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .github/status/validacao-site-estatico.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/status/validacao-site-estatico.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Registrar validação automática da hospedagem estática'
+            git push
           fi

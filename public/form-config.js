@@ -1,3 +1,3 @@
-// Configurar após criar e validar o formulário no provedor externo.
-// Exemplo: window.ZORDAN_FORM_ENDPOINT = 'https://formspree.io/f/ID_VALIDADO';
-window.ZORDAN_FORM_ENDPOINT = '';
+// Endpoint do formulário do escritório no Formspree.
+// O conteúdo é público e contém apenas o endereço de recebimento, não credenciais.
+window.ZORDAN_FORM_ENDPOINT = 'https://formspree.io/f/xjywpkvq';

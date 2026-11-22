@@ -1,0 +1,39 @@
+name: Validar hospedagem estatica e formulario
+on:
+  push:
+    paths:
+      - '.github/workflows/validate-static-site.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verificar paginas e script publicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://zordan-advogados-static.onrender.com'
+          for path in / /artigos/ /civil/ /familia/ /trabalhista/ /consumidor/ /bancario/ /form-config.js; do
+            code=$(curl -sS -L --retry 3 --retry-delay 2 --max-time 30 -o /tmp/site-response -w '%{http_code}' "$base$path")
+            echo "Pagina $path => HTTP $code"
+            test "$code" = '200'
+            if [ "$path" = '/form-config.js' ]; then
+              grep -Fq 'https://formspree.io/f/xjywpkvq' /tmp/site-response
+            fi
+          done
+      - name: Testar submissao sintetica ao Formspree
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -L --max-time 40 -o /tmp/form-response -w '%{http_code}' \
+            -H 'Accept: application/json' -H 'Content-Type: application/json' \
+            --data '{"nome":"TESTE AUTOMATICO - IGNORAR","cidade":"Erechim","email":"teste-integracao@example.com","telefone":"54999999999","area":"Teste","processo":"TESTE","mensagem":"TESTE TECNICO DO SITE - NAO E CLIENTE, IGNORAR ESTE EMAIL","origem":"Teste de integracao","pagina":"https://zordan-advogados-static.onrender.com/"}' \
+            'https://formspree.io/f/xjywpkvq')
+          echo "Resposta Formspree => HTTP $status"
+          if [[ "$status" != '200' && "$status" != '201' && "$status" != '202' ]]; then
+            head -c 600 /tmp/form-response
+            exit 1
+          fi
